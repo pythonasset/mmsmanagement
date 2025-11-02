@@ -1,0 +1,63 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+.env
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (except README)
+*.md
+!README.md
+
+# Database files (will be mounted as volume)
+data/*.db
+data/*.db-journal
+data/backups/
+
+# Document files (will be mounted as volume)
+documents/*
+!documents/.gitkeep
+
+# Temporary files
+*.log
+*.tmp
+*.kml
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+tests/
+test_*.py
+*_test.py
+
+# Docker files (no need to include in image)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+

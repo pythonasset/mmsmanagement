@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  maintenance-app:
+    build: .
+    container_name: maintenance_management_system
+    ports:
+      - "8501:8501"
+    volumes:
+      # Persist database using named volume
+      - mms_data:/app/data
+      # Persist documents using named volume
+      - mms_documents:/app/documents
+    environment:
+      - TZ=Australia/Sydney
+      - PYTHONUNBUFFERED=1
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  mms_data:
+    driver: local
+  mms_documents:
+    driver: local
+

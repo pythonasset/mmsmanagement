@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  maintenance-app:
+    build: .
+    container_name: maintenance_management_system_prod
+    expose:
+      - "8501"
+    volumes:
+      # Persist database
+      - ./data:/app/data
+      # Persist documents
+      - ./documents:/app/documents
+      # Allow config changes without rebuild
+      - ./config.ini:/app/config.ini:ro
+    environment:
+      - TZ=Australia/Sydney
+      - PYTHONUNBUFFERED=1
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+    restart: always
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  nginx:
+    image: nginx:alpine
+    container_name: maintenance_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - maintenance-app
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
