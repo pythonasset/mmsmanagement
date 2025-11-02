@@ -38,9 +38,8 @@ venv.bak/
 *~
 .DS_Store
 
-# Streamlit
+# Streamlit (only ignore secrets, allow config)
 .streamlit/secrets.toml
-.streamlit/config.toml
 
 # Database
 *.db
