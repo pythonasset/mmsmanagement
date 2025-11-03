@@ -576,7 +576,7 @@ def manage_asset_groups(session):
                         class_obj = session.query(AssetClass).filter(AssetClass.name == group_class).first()
                         new_group = AssetGroup(
                             name=group_name,
-                            class_id=class_obj.id,
+                            asset_class_id=class_obj.id,
                             description=group_desc if group_desc else None
                         )
                         session.add(new_group)
@@ -674,7 +674,7 @@ def manage_asset_types(session):
                         group_obj = session.query(AssetGroup).filter(AssetGroup.name == type_group).first()
                         new_type = AssetType(
                             name=type_name,
-                            group_id=group_obj.id,
+                            asset_group_id=group_obj.id,
                             description=type_desc if type_desc else None
                         )
                         session.add(new_type)
