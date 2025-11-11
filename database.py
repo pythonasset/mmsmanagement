@@ -210,6 +210,47 @@ class Document(Base):
     notes = Column(Text)
 
 
+class CostItem(Base):
+    """Cost items for work orders and inspections - Bill of Quantities"""
+    __tablename__ = 'cost_items'
+    
+    id = Column(Integer, primary_key=True)
+    
+    # Link to parent record
+    linked_type = Column(String(50), nullable=False)  # 'work_order' or 'inspection'
+    linked_id = Column(Integer, nullable=False)  # ID of the linked work order or inspection
+    
+    # Cost details
+    item_number = Column(String(50))  # BOQ item number (e.g., 1.1, 1.2, 2.1)
+    cost_category = Column(String(50), nullable=False)  # Labour, Material, Plant, Repairs
+    description = Column(String(500), nullable=False)
+    
+    # Quantity and rates
+    quantity = Column(Float, default=1.0)
+    unit = Column(String(50))  # e.g., hours, m³, kg, each, m²
+    unit_rate = Column(Float, default=0.0)  # Rate per unit
+    
+    # Calculated total
+    total_cost = Column(Float, default=0.0)  # quantity × unit_rate
+    
+    # Additional details
+    supplier_contractor = Column(String(200))  # For materials/plant/repairs
+    date_incurred = Column(Date)
+    invoice_reference = Column(String(100))
+    notes = Column(Text)
+    
+    # Approval tracking
+    approved = Column(Boolean, default=False)
+    approved_by = Column(String(100))
+    approval_date = Column(DateTime)
+    
+    # Metadata
+    created_date = Column(DateTime, default=datetime.now)
+    created_by = Column(String(100))
+    modified_date = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    modified_by = Column(String(100))
+
+
 class AuditLog(Base):
     """Audit trail for all transactions"""
     __tablename__ = 'audit_logs'

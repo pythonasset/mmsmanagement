@@ -11,6 +11,7 @@ from reporting import show_reporting
 from administration import show_administration
 from faq import show_faq
 from document_viewer import show_document_viewer
+from costing_management import show_costing_management
 from settings import DEFAULT_ASSET_CLASSES
 from config_loader import get_config
 
@@ -144,6 +145,7 @@ def show_home_page(session):
     - 📦 **Assets** - Complete asset register with hierarchy management
     - 🔧 **Work Orders** - Maintenance work order creation and tracking
     - 🔍 **Inspections** - Inspection scheduling and defect tracking
+    - 💰 **Costing** - Bill of Quantities tracking for Labour, Material, Plant & Repairs
     - 📊 **Reports** - Comprehensive analytics and reporting
     - 🌍 **Google Earth Integration** - Visual tracking on maps and Google Earth
     """)
@@ -166,6 +168,8 @@ def show_home_page(session):
         - ✅ **Hierarchical Assets** - Class → Group → Type → Asset structure
         - ✅ **Work Order Management** - Priority-based scheduling
         - ✅ **Inspection Tracking** - Defect detection and follow-up
+        - ✅ **Bill of Quantities** - Detailed cost tracking (Labour, Material, Plant, Repairs)
+        - ✅ **Cost Reporting** - Financial analytics and approval workflows
         - ✅ **Analytics Dashboard** - Real-time metrics and visualizations
         - ✅ **Export Capabilities** - CSV, Excel, and KML formats
         """)
@@ -194,6 +198,7 @@ def main():
             "📦 Asset Management",
             "🔧 Work Order Management",
             "🔍 Inspection Management",
+            "💰 Costing Management",
             "📊 Reports & Analytics",
             "📁 Documents",
             "⚙️ Administration",
@@ -311,6 +316,8 @@ def main():
         show_work_order_management(session)
     elif page == "🔍 Inspection Management":
         show_inspection_management(session)
+    elif page == "💰 Costing Management":
+        show_costing_management(session)
     elif page == "📊 Reports & Analytics":
         show_reporting(session)
     elif page == "📁 Documents":

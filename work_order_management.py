@@ -9,7 +9,7 @@ import folium
 from streamlit_folium import folium_static
 import plotly.express as px
 import plotly.graph_objects as go
-from database import WorkOrder, Asset, User
+from database import WorkOrder, Asset, User, CostItem
 from document_management import show_documents, get_document_count
 from settings import DEFAULT_MAP_CENTER
 from utils import format_date, format_datetime
@@ -767,6 +767,94 @@ def show_work_order_analytics(session):
     with col4:
         avg_hours = sum(wo.labor_hours for wo in work_orders if wo.labor_hours) / len([wo for wo in work_orders if wo.labor_hours]) if any(wo.labor_hours for wo in work_orders) else 0
         st.metric("Avg Labor Hours", f"{avg_hours:.1f}")
+    
+    st.divider()
+    
+    # Work Orders by Cost
+    st.subheader("💰 Work Orders by Cost")
+    
+    # Get cost data for work orders
+    wo_cost_data = []
+    for wo in work_orders:
+        # Get total cost from CostItem table
+        cost_items = session.query(CostItem).filter_by(
+            linked_type='work_order',
+            linked_id=wo.id
+        ).all()
+        
+        total_cost = sum(item.total_cost or 0 for item in cost_items)
+        
+        if total_cost > 0:  # Only include work orders with costs
+            wo_cost_data.append({
+                'work_order': wo.work_order_number,
+                'title': wo.title,
+                'cost': total_cost,
+                'status': wo.status
+            })
+    
+    if wo_cost_data:
+        # Sort by cost descending and take top 15
+        wo_cost_data.sort(key=lambda x: x['cost'], reverse=True)
+        top_wo_costs = wo_cost_data[:15]
+        
+        # Create bar chart
+        fig_cost = px.bar(
+            x=[item['cost'] for item in top_wo_costs],
+            y=[f"{item['work_order'][:20]}" for item in top_wo_costs],
+            orientation='h',
+            title="Top 15 Work Orders by Total Cost (from Bill of Quantities)",
+            labels={'x': 'Total Cost ($)', 'y': 'Work Order'},
+            color=[item['cost'] for item in top_wo_costs],
+            color_continuous_scale='Reds'
+        )
+        fig_cost.update_layout(
+            showlegend=False,
+            height=500,
+            xaxis_title="Total Cost ($)",
+            yaxis_title="Work Order Number"
+        )
+        st.plotly_chart(fig_cost, use_container_width=True)
+        
+        # Summary metrics for costs
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            total_boq_cost = sum(item['cost'] for item in wo_cost_data)
+            st.metric("Total BOQ Cost", f"${total_boq_cost:,.2f}")
+        
+        with col2:
+            wo_with_costs = len(wo_cost_data)
+            st.metric("Work Orders with Costs", wo_with_costs)
+        
+        with col3:
+            avg_cost = total_boq_cost / wo_with_costs if wo_with_costs > 0 else 0
+            st.metric("Average Cost per WO", f"${avg_cost:,.2f}")
+        
+        # Detailed table
+        with st.expander("📋 View Detailed Cost Breakdown", expanded=False):
+            cost_df = pd.DataFrame([
+                {
+                    'Work Order': item['work_order'],
+                    'Title': item['title'][:50] + '...' if len(item['title']) > 50 else item['title'],
+                    'Status': item['status'],
+                    'Total Cost': f"${item['cost']:,.2f}"
+                }
+                for item in wo_cost_data
+            ])
+            st.dataframe(cost_df, use_container_width=True, hide_index=True)
+            
+            # Export option
+            if st.button("📥 Export Cost Data to CSV", key="export_wo_cost_csv"):
+                csv = cost_df.to_csv(index=False)
+                st.download_button(
+                    "Download Work Order Costs CSV",
+                    csv,
+                    f"WorkOrder_Costs_{datetime.now().strftime('%Y%m%d')}.csv",
+                    "text/csv",
+                    key='download-wo-cost-csv'
+                )
+    else:
+        st.info("No cost data available yet. Add costs in the Costing Management section to see work orders by cost.")
     
     st.divider()
     
